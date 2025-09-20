@@ -11,7 +11,7 @@ export default function Quotation() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Main States
+  // States
   const [heading, setHeading] = useState("Quotation");
   const [showHeading, setShowHeading] = useState(true);
   const [quotationNo, setQuotationNo] = useState("");
@@ -44,7 +44,6 @@ export default function Quotation() {
   const [discount, setDiscount] = useState(0);
   const [stamp, setStamp] = useState(null);
 
-  // Handlers
   const addExtraField = () => {
     setExtraFields([...extraFields, { label: "", value: "" }]);
   };
@@ -118,7 +117,6 @@ export default function Quotation() {
   const [logo, setLogo] = useState(null);
   const logoInputRef = React.useRef(null);
   const stampInputRef = React.useRef(null);
-
   const [logoURL, setLogoURL] = useState(null);
   const [stampURL, setStampURL] = useState(null);
 
@@ -132,48 +130,46 @@ export default function Quotation() {
   return (
     <main
       onClick={() => setShowHeading(true)}
-      className="container mx-auto lg:px-30 px-5  py-20"
+      className="container mx-auto lg:px-30 px-4 py-10"
     >
-      {/* Quotation Container */}
+      {/* Header */}
       <div className="mb-8 text-center">
-        <h1 className="text-6xl font-bold">
+        <h1 className="text-4xl sm:text-6xl font-bold">
           Create <span className="text-[#27247B]">Quotations</span> in a Moment
         </h1>
         <p className="text-gray-600 mt-2">
           Fill in the details below to generate a professional quotation.
         </p>
       </div>
-      <div className="bg-white shadow-2xl rounded-xl lg:px-30 px-5 py-15 border border-gray-200 space-y-6">
-        {/* Heading */}
-        <div className="flex justify-between items-start">
-          <div>
+
+      {/* Form Container */}
+      <div className="bg-white shadow-2xl rounded-xl lg:px-20 px-5 py-15  border border-gray-200 space-y-6">
+        {/* Heading + Logo */}
+        <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
+          <div className="w-full lg:w-2/3">
             <div
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center justify-start"
+              className="flex items-center"
             >
               {showHeading ? (
-                <h2 className="text-3xl font-bold  text-[#27247B]">
-                  {heading}
-                </h2>
+                <h2 className="text-3xl font-bold text-[#27247B]">{heading}</h2>
               ) : (
                 <input
                   type="text"
                   value={heading}
                   onChange={(e) => setHeading(e.target.value)}
-                  onEnter={() => setShowHeading(true)}
-                  style={{ color: "#27247B" }}
-                  className="text-3xl w-40 font-bold focus:outline-none "
+                  onBlur={() => setShowHeading(true)}
+                  className="text-3xl w-40 font-bold focus:outline-none text-[#27247B]"
                 />
               )}
-              &nbsp;
               <MdOutlineEdit
                 onClick={() => setShowHeading(false)}
-                className="text-2xl text-blue-800 cursor-pointer"
+                className="text-2xl text-blue-800 cursor-pointer ml-2"
               />
             </div>
 
             <div className="mt-4 space-y-2">
-              <div className="flex gap-2 justify-start items-center">
+              <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
                 <label className="block text-sm font-medium">
                   Quotation No:
                 </label>
@@ -181,22 +177,22 @@ export default function Quotation() {
                   type="text"
                   value={quotationNo}
                   onChange={(e) => setQuotationNo(e.target.value)}
-                  className="border border-gray-200 rounded w-40 justify-center outline-none"
+                  className="border border-gray-200 rounded w-full sm:w-40 outline-none px-2 py-1"
                 />
               </div>
-              <div className="flex gap-2 justify-start items-center">
+              <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
                 <label className="block text-sm font-medium">
-                  Quotation Date
+                  Quotation Date:
                 </label>
                 <input
                   type="date"
                   value={quotationDate}
                   onChange={(e) => setQuotationDate(e.target.value)}
-                  className="border border-gray-200 rounded px-3 py-2 outline-none"
+                  className="border border-gray-200 rounded px-2 py-1 outline-none"
                 />
               </div>
               {extraFields.map((f, i) => (
-                <div key={i} className="flex gap-2">
+                <div key={i} className="flex flex-col sm:flex-row gap-2">
                   <input
                     placeholder="Field"
                     value={f.label}
@@ -205,7 +201,7 @@ export default function Quotation() {
                       copy[i].label = e.target.value;
                       setExtraFields(copy);
                     }}
-                    className="border border-gray-200 rounded px-2 py-1 outline-none"
+                    className="border border-gray-200 rounded px-2 py-1 outline-none w-full"
                   />
                   <input
                     placeholder="Value"
@@ -215,21 +211,23 @@ export default function Quotation() {
                       copy[i].value = e.target.value;
                       setExtraFields(copy);
                     }}
-                    className="border border-gray-200 rounded px-2 py-1 outline-none"
+                    className="border border-gray-200 rounded px-2 py-1 outline-none w-full"
                   />
                 </div>
               ))}
               <button
                 onClick={addExtraField}
-                className="text-black text-sm mt-2 flex gap-2 justify-center items-center"
+                className="text-black text-sm mt-2 flex gap-2 items-center"
               >
                 <CiSquarePlus size={24} className="text-[#27247B]" /> Add New
                 Field
               </button>
             </div>
           </div>
+
+          {/* Logo Upload */}
           <div
-            className="w-64 h-40 cursor-pointer flex flex-col gap-2 items-center justify-center rounded-2xl text-black bg-gray-100 border border-dashed border-gray-400 overflow-hidden"
+            className="w-full sm:w-64 h-40 cursor-pointer flex flex-col gap-2 items-center justify-center rounded-2xl text-black bg-gray-100 border border-dashed border-gray-400 overflow-hidden"
             onClick={() => logoInputRef.current.click()}
           >
             {!logoURL ? (
@@ -246,7 +244,6 @@ export default function Quotation() {
                 className="h-full w-full object-contain"
               />
             )}
-
             <input
               type="file"
               accept="image/png, image/jpeg, image/jpg"
@@ -272,11 +269,11 @@ export default function Quotation() {
           ].map((party, idx) => (
             <div
               key={idx}
-              className="border border-gray-100  rounded-2xl p-4 shadow-md space-y-2"
+              className="border border-gray-100 rounded-2xl p-4 shadow-md space-y-2"
             >
               <h2 className="font-semibold">{party.title}</h2>
               {party.state.map((field, i) => (
-                <div key={i} className="flex gap-2">
+                <div key={i} className="flex flex-col sm:flex-row gap-2">
                   <input
                     placeholder="Field"
                     value={field.label}
@@ -289,7 +286,7 @@ export default function Quotation() {
                         e.target.value
                       )
                     }
-                    className=" px-2 py-1 w-1/3 outline-none "
+                    className="px-2 py-1 outline-none w-full sm:w-1/3"
                   />
                   <input
                     placeholder="Value"
@@ -303,13 +300,13 @@ export default function Quotation() {
                         e.target.value
                       )
                     }
-                    className="border border-gray-100 rounded px-2 py-1 flex-1 outline-none"
+                    className="border border-gray-100 rounded px-2 py-1 outline-none w-full"
                   />
                 </div>
               ))}
               <button
                 onClick={() => handleAddPartyField(party.state, party.set)}
-                className="text-black text-sm mt-2 flex gap-2 justify-center items-center"
+                className="text-black text-sm mt-2 flex gap-2 items-center"
               >
                 <CiSquarePlus size={24} className="text-[#27247B]" /> Add New
                 Field
@@ -507,7 +504,7 @@ export default function Quotation() {
         </div>
 
         {/* Totals */}
-        <div className="w-1/3 ml-auto space-y-2 text-sm  pt-10">
+        <div className="w-auto lg:w-1/3 ml-auto  flex flex-col space-y-2 text-sm  pt-10">
           {/* Subtotal */}
           <div className="flex justify-between border-b py-1">
             <span>Sub Total:</span>
@@ -515,13 +512,13 @@ export default function Quotation() {
           </div>
 
           {/* Discount */}
-          <div className="flex justify-between border-b py-1 items-center">
+          <div className="flex justify-between  border-b py-1 items-center">
             <span>Discount (%):</span>
             <input
               type="number"
               value={discount}
               onChange={(e) => setDiscount(Number(e.target.value))}
-              className=" px-2 py-1 rounded w-20 text-right outline-none"
+              className="text-right"
             />
           </div>
 

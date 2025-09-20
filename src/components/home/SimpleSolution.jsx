@@ -25,63 +25,59 @@ const steps = [
 
 const SimpleSolution = () => {
   return (
-    <div className="bg-[#FFF6D9] overflow-hidden">
-      <div className="container relative mx-auto px-6 md:px-10 lg:px-[120px] pt-15 py-15">
-        {/* Background Images Inside Container */}
-        {/* <img
-          src="/images/center-image.png"
-          alt="Decor Center"
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 w-32 md:w-40 h-32 md:h-40 object-contain pointer-events-none"
-        /> */}
+    <div className="bg-[#FFF6D9] overflow-hidden relative">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-[120px] py-12 lg:py-20 relative z-10">
+        {/* Decorative Background Image */}
         <img
           src="/images/quotationsimplesolution.png"
           alt="Decor Bottom Right"
-          className="absolute bottom-0 right-0 w-[38rem] md:w-[45rem] object-contain pointer-events-none"
+          className="absolute bottom-0 right-0 w-[28rem] sm:w-[35rem] md:w-[40rem] lg:w-[45rem] object-contain pointer-events-none z-0 "
         />
 
-        {/* Content Section */}
-        <div className="flex flex-col lg:gap-10 gap-40">
-          {/* Left Section */}
-          <div className="w-full lg:w-1/2">
+        {/* Main Content */}
+        <div className="flex flex-col lg:flex-row lg:items-start lg:gap-10 gap-12 relative z-10">
+          {/* Left Content Section */}
+          <div className="w-full lg:w-1/2 text-center lg:text-left flex flex-col items-center lg:items-start">
             <h2 className="text-4xl md:text-5xl font-bold text-black mb-4 leading-tight">
               Simple <span className="text-[#27247B]">Solution</span>
             </h2>
-            <p className="text-lg md:text-xl text-black mb-10 w-full lg:w-2/3">
+            <p className="text-lg md:text-xl text-black mb-10 max-w-xl">
               We understand that no businesses are alike. That’s why we take the
               time to understand.
             </p>
 
             {/* Steps */}
-            <div className="relative ">
+            <div className="w-full max-w-xl relative">
               {steps.map((step, index) => (
-                <div  
+                <div
                   key={index}
-                  className="mb-10 flex items-start gap-6 relative"
+                  className="relative  mb-10 last:mb-0 items-start "
                 >
-                  {/* Circle with number */}
-                  <div className="min-w-[38px] min-h-[38px] md:min-w-[54px] md:min-h-[54px] rounded-full bg-[#27247B] flex items-center justify-center text-white font-bold text-lg md:text-xl z-10">
-                    {index + 1}
-                  </div>
-
-                  {/* Line */}
+                  {/* Connecting line */}
                   {index !== steps.length - 1 && (
-                    <div className="absolute left-[16px] md:left-[25px] top-[45px] md:top-[50px] h-15 md:h-20 w-1 bg-[#27247B] z-0"></div>
+                    <span className="absolute left-6 top-5 -bottom-10 w-1 bg-[#27247B] lg:block hidden"></span>
                   )}
 
-                  {/* Text */}
-                  <div>
-                    <h3 className="text-xl md:text-2xl font-bold text-black">
-                      {step.title}
-                    </h3>
-                    <p className="text-md md:text-xl text-black">
-                      {step.description}
-                    </p>
+                  <div className="flex items-start gap-4">
+                    {/* Number circle */}
+                    <div className="min-w-[38px] min-h-[38px] md:min-w-[54px] md:min-h-[54px] rounded-full bg-[#27247B] flex items-center justify-center text-white font-bold text-lg md:text-xl z-10">
+                      {index + 1}
+                    </div>
+
+                    {/* Text content */}
+                    <div className="flex flex-col items-start">
+                      <h3 className="flex text-lg md:text-xl font-bold text-black mb-1">
+                        {step.title}
+                      </h3>
+                      <p className="flex text-start text-sm md:text-base text-black">
+                        {step.description}
+                      </p>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-
         </div>
       </div>
     </div>
