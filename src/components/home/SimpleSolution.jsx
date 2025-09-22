@@ -35,19 +35,19 @@ const SimpleSolution = () => {
         />
 
         {/* Main Content */}
-        <div className="flex flex-col lg:flex-row lg:items-start lg:gap-10 gap-12 relative z-10">
+        <div className="flex flex-col lg:flex-row items-center pb-90 lg:pb-0">
           {/* Left Content Section */}
           <div className="w-full lg:w-1/2 text-center lg:text-left flex flex-col items-center lg:items-start">
             <h2 className="text-4xl md:text-5xl font-bold text-black mb-4 leading-tight">
               Simple <span className="text-[#27247B]">Solution</span>
             </h2>
-            <p className="text-lg md:text-xl text-black mb-10 max-w-xl">
+            <p className="text-lg md:text-xl text-black mb-10 max-w-2xl">
               We understand that no businesses are alike. That’s why we take the
               time to understand.
             </p>
 
             {/* Steps */}
-            <div className="w-full max-w-xl relative">
+            <div className="w-full max-w-2xl relative">
               {steps.map((step, index) => (
                 <div
                   key={index}

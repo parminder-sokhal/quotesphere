@@ -151,7 +151,7 @@ const WhatClientSay = () => {
                       <IoIosStar
                       size={24}
                         key={index}
-                        className={`text-yellow-400 mr-1 ${
+                        className={`text-yellow-500  mr-1 ${
                           index < client.rating ? "opacity-100" : "opacity-30"
                         }`}
                       />

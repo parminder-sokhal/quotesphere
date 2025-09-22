@@ -6,6 +6,7 @@ import { setQuotationData } from "../../store/quotationSlice";
 import { MdOutlineEdit } from "react-icons/md";
 import { GrGallery } from "react-icons/gr";
 import { CiSquarePlus } from "react-icons/ci";
+import { BsDot } from "react-icons/bs";
 
 export default function Quotation() {
   const dispatch = useDispatch();
@@ -19,18 +20,19 @@ export default function Quotation() {
   const [extraFields, setExtraFields] = useState([]);
 
   const [from, setFrom] = useState([
-    { label: "Name", value: "" },
-    { label: "Phone", value: "" },
-    { label: "Email", value: "" },
-    { label: "Address", value: "" },
-    { label: "PAN", value: "" },
+    { label: "Name", value: "", isDefault: true },
+    { label: "Phone", value: "", isDefault: true },
+    { label: "Email", value: "", isDefault: true },
+    { label: "Address", value: "", isDefault: true },
+    { label: "PAN", value: "", isDefault: true },
   ]);
+
   const [to, setTo] = useState([
-    { label: "Name", value: "" },
-    { label: "Phone", value: "" },
-    { label: "Email", value: "" },
-    { label: "Address", value: "" },
-    { label: "PAN", value: "" },
+    { label: "Name", value: "", isDefault: true },
+    { label: "Phone", value: "", isDefault: true },
+    { label: "Email", value: "", isDefault: true },
+    { label: "Address", value: "", isDefault: true },
+    { label: "PAN", value: "", isDefault: true },
   ]);
 
   const [items, setItems] = useState([
@@ -55,7 +57,7 @@ export default function Quotation() {
   };
 
   const handleAddPartyField = (party, setParty) => {
-    setParty([...party, { label: "", value: "" }]);
+    setParty([...party, { label: "", value: "", isDefault: false }]);
   };
 
   const handleItemChange = (index, field, value) => {
@@ -145,95 +147,137 @@ export default function Quotation() {
       {/* Form Container */}
       <div className="bg-white shadow-2xl rounded-xl lg:px-20 px-5 py-15  border border-gray-200 space-y-6">
         {/* Heading + Logo */}
+        {/* Quotation Header + Logo */}
         <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
+          {/* Heading & Details */}
           <div className="w-full lg:w-2/3">
+            {/* Editable Heading */}
             <div
               onClick={(e) => e.stopPropagation()}
               className="flex items-center"
             >
               {showHeading ? (
-                <h2 className="text-3xl font-bold text-[#27247B]">{heading}</h2>
+                <h2
+                  className="text-3xl font-bold text-[#27247B] flex items-center flex-row"
+                  onClick={() => setShowHeading(false)}
+                >
+                  {heading}
+                  <MdOutlineEdit
+                    onClick={() => setShowHeading(false)}
+                    className="text-2xl text-blue-800 cursor-pointer ml-2"
+                  />
+                </h2>
               ) : (
                 <input
                   type="text"
                   value={heading}
                   onChange={(e) => setHeading(e.target.value)}
                   onBlur={() => setShowHeading(true)}
-                  className="text-3xl w-40 font-bold focus:outline-none text-[#27247B]"
+                  autoFocus
+                  className="text-3xl w-full font-bold focus:outline-none text-[#27247B]"
                 />
               )}
-              <MdOutlineEdit
+              {/* <MdOutlineEdit
                 onClick={() => setShowHeading(false)}
                 className="text-2xl text-blue-800 cursor-pointer ml-2"
-              />
+              /> */}
             </div>
 
+            {/* Quotation No + Date */}
             <div className="mt-4 space-y-2">
               <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-                <label className="block text-sm font-medium">
-                  Quotation No:
-                </label>
+                <label className="text-sm font-medium">Quotation No:</label>
                 <input
                   type="text"
                   value={quotationNo}
                   onChange={(e) => setQuotationNo(e.target.value)}
-                  className="border border-gray-200 rounded w-full sm:w-40 outline-none px-2 py-1"
+                  className={`border ${
+                    quotationNo ? "border-transparent" : "border-gray-200"
+                  } bg-transparent rounded w-full sm:w-40 outline-none px-2 py-1`}
+                  placeholder="Enter number"
                 />
               </div>
               <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-                <label className="block text-sm font-medium">
-                  Quotation Date:
-                </label>
+                <label className="text-sm font-medium">Quotation Date:</label>
                 <input
                   type="date"
                   value={quotationDate}
                   onChange={(e) => setQuotationDate(e.target.value)}
-                  className="border border-gray-200 rounded px-2 py-1 outline-none"
+                  className={`border ${
+                    quotationDate ? "border-transparent" : "border-gray-200"
+                  } bg-transparent rounded px-2 py-1 outline-none`}
                 />
               </div>
+
+              {/* Dynamic Extra Fields */}
               {extraFields.map((f, i) => (
-                <div key={i} className="flex flex-col sm:flex-row gap-2">
+                <div
+                  key={i}
+                  className="flex flex-col sm:flex-row gap-2 items-center"
+                >
                   <input
                     placeholder="Field"
                     value={f.label}
                     onChange={(e) => {
-                      const copy = [...extraFields];
-                      copy[i].label = e.target.value;
-                      setExtraFields(copy);
+                      const updated = [...extraFields];
+                      updated[i].label = e.target.value;
+                      setExtraFields(updated);
                     }}
-                    className="border border-gray-200 rounded px-2 py-1 outline-none w-full"
+                    className={`px-2 py-1 font-semibold outline-none rounded  bg-transparent w-full sm:w-1/3 ${
+                      f.label
+                        ? "border border-transparent"
+                        : "border border-gray-200"
+                    }`}
                   />
-                  <input
-                    placeholder="Value"
-                    value={f.value}
-                    onChange={(e) => {
-                      const copy = [...extraFields];
-                      copy[i].value = e.target.value;
-                      setExtraFields(copy);
-                    }}
-                    className="border border-gray-200 rounded px-2 py-1 outline-none w-full"
-                  />
+                  <div className="flex flex-row  items-center w-full sm:w-2/3 gap-2">
+                    <input
+                      placeholder="Value"
+                      value={f.value}
+                      onChange={(e) => {
+                        const updated = [...extraFields];
+                        updated[i].value = e.target.value;
+                        setExtraFields(updated);
+                      }}
+                      className={`px-2 py-1 outline-none text-gray-700 rounded bg-transparent w-full sm:w-1/3 ${
+                        f.value
+                          ? "border border-transparent"
+                          : "border border-gray-200"
+                      }`}
+                    />
+                    <button
+                      onClick={() => {
+                        const updated = [...extraFields];
+                        updated.splice(i, 1);
+                        setExtraFields(updated);
+                      }}
+                      className="flex texts-center text-red-500 text-sm font-semibold"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
               ))}
+
+              {/* Add Field Button */}
               <button
                 onClick={addExtraField}
                 className="text-black text-sm mt-2 flex gap-2 items-center"
               >
-                <CiSquarePlus size={24} className="text-[#27247B]" /> Add New
-                Field
+                <CiSquarePlus size={24} className="text-[#27247B]" /> Add/Remove
+                New Field
               </button>
             </div>
           </div>
 
           {/* Logo Upload */}
           <div
-            className="w-full sm:w-64 h-40 cursor-pointer flex flex-col gap-2 items-center justify-center rounded-2xl text-black bg-gray-100 border border-dashed border-gray-400 overflow-hidden"
+            className="w-full sm:w-64 h-40 cursor-pointer flex flex-col gap-2 items-center justify-center rounded-2xl text-black bg-gray-100  overflow-hidden"
             onClick={() => logoInputRef.current.click()}
           >
             {!logoURL ? (
               <>
                 <GrGallery className="text-black" size={24} />
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-black border border-dashed ">
                   Add Your Business Logo
                 </span>
               </>
@@ -241,7 +285,7 @@ export default function Quotation() {
               <img
                 src={logoURL}
                 alt="Logo"
-                className="h-full w-full object-contain"
+                className="h-full w-full object-contain bg-white"
               />
             )}
             <input
@@ -272,8 +316,12 @@ export default function Quotation() {
               className="border border-gray-100 rounded-2xl p-4 shadow-md space-y-2"
             >
               <h2 className="font-semibold">{party.title}</h2>
+
               {party.state.map((field, i) => (
-                <div key={i} className="flex flex-col sm:flex-row gap-2">
+                <div
+                  key={i}
+                  className="flex flex-col sm:flex-row gap-2 items-start sm:items-center"
+                >
                   <input
                     placeholder="Field"
                     value={field.label}
@@ -286,7 +334,11 @@ export default function Quotation() {
                         e.target.value
                       )
                     }
-                    className="px-2 py-1 outline-none w-full sm:w-1/3"
+                    className={`px-2 py-1 font-semibold outline-none rounded bg-transparent w-full sm:w-1/3 ${
+                      field.label
+                        ? "border border-transparent"
+                        : "border border-gray-200"
+                    }`}
                   />
                   <input
                     placeholder="Value"
@@ -300,45 +352,78 @@ export default function Quotation() {
                         e.target.value
                       )
                     }
-                    className="border border-gray-100 rounded px-2 py-1 outline-none w-full"
+                    className={`px-2 py-1 outline-none  rounded bg-transparent w-full ${
+                      field.value
+                        ? "border border-transparent"
+                        : "border border-gray-200"
+                    }`}
                   />
+
+                  {/* Show Remove only if field is NOT default */}
+                  {!field.isDefault && (
+                    <button
+                      onClick={() => {
+                        const updated = [...party.state];
+                        updated.splice(i, 1);
+                        party.set(updated);
+                      }}
+                      className="text-red-600 text-sm font-semibold"
+                    >
+                      Remove
+                    </button>
+                  )}
                 </div>
               ))}
+
               <button
                 onClick={() => handleAddPartyField(party.state, party.set)}
                 className="text-black text-sm mt-2 flex gap-2 items-center"
               >
-                <CiSquarePlus size={24} className="text-[#27247B]" /> Add New
-                Field
+                <CiSquarePlus size={24} className="text-[#27247B]" /> Add/Remove
+                New Field
               </button>
             </div>
           ))}
         </div>
 
         {/* Items Table */}
-        <div className="w-full overflow-x-auto">
-          <table className="min-w-[600px] w-full border-collapse shadow-md rounded-xl">
-            <thead className="bg-blue-900 text-white">
+        <div className="w-full overflow-x-auto border rounded-2xl">
+          <table className="min-w-[600px] w-full border-collapse shadow-md rounded-xl ">
+            <thead className="bg-blue-900 text-white  ">
               <tr>
-                <th className="p-3 sm:p-6 rounded-tl-xl text-xs sm:text-sm">
+                <th className="p-3 sm:p-4 rounded-tl-xl text-xs sm:text-sm text-center">
                   Description
                 </th>
-                <th className="p-3 sm:p-6 text-xs sm:text-sm">Qty</th>
-                <th className="p-3 sm:p-6 text-xs sm:text-sm">Rate</th>
-                <th className="p-3 sm:p-6 text-xs sm:text-sm">GST%</th>
-                <th className="p-3 sm:p-6 text-xs sm:text-sm">Amount</th>
-                <th className="p-3 sm:p-6 rounded-tr-xl text-xs sm:text-sm">
+                <th className="p-3 sm:p-4 text-xs sm:text-sm text-center">
+                  Qty
+                </th>
+                <th className="p-3 sm:p-4 text-xs sm:text-sm text-center">
+                  Rate
+                </th>
+                <th className="p-3 sm:p-4 text-xs sm:text-sm text-center">
+                  GST%
+                </th>
+                <th className="p-3 sm:p-4 text-xs sm:text-sm text-center">
+                  Amount
+                </th>
+                <th className="p-3 sm:p-4 rounded-tr-xl text-xs sm:text-sm text-center">
                   Total
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-200 ">
               {items.map((it, i) => (
-                <tr key={i} className="text-center">
+                <tr
+                  key={i}
+                  className={`text-center ${
+                    i % 2 === 0 ? "bg-white" : "bg-gray-100"
+                  }`}
+                >
                   <td>
                     <input
-                      className="w-full px-1 sm:px-2 py-1 text-xs sm:text-sm text-center outline-none"
+                      className="w-full px-2 py-1 text-xs sm:text-sm text-center outline-none bg-transparent"
                       value={it.description}
+                      placeholder="Item description"
                       onChange={(e) =>
                         handleItemChange(i, "description", e.target.value)
                       }
@@ -347,7 +432,7 @@ export default function Quotation() {
                   <td>
                     <input
                       type="number"
-                      className="w-full px-1 sm:px-2 py-1 text-xs sm:text-sm text-center outline-none"
+                      className="w-full px-2 py-1 text-xs sm:text-sm text-center outline-none bg-transparent"
                       value={it.qty}
                       onChange={(e) =>
                         handleItemChange(i, "qty", Number(e.target.value))
@@ -357,7 +442,7 @@ export default function Quotation() {
                   <td>
                     <input
                       type="number"
-                      className="w-full px-1 sm:px-2 py-1 text-xs sm:text-sm text-center outline-none"
+                      className="w-full px-2 py-1 text-xs sm:text-sm text-center outline-none bg-transparent"
                       value={it.rate}
                       onChange={(e) =>
                         handleItemChange(i, "rate", Number(e.target.value))
@@ -367,137 +452,169 @@ export default function Quotation() {
                   <td>
                     <input
                       type="number"
-                      className="w-full px-1 sm:px-2 py-1 text-xs sm:text-sm text-center outline-none"
+                      className="w-full px-2 py-1 text-xs sm:text-sm text-center outline-none bg-transparent"
                       value={it.gst}
                       onChange={(e) =>
                         handleItemChange(i, "gst", Number(e.target.value))
                       }
                     />
                   </td>
-                  <td className="text-center text-xs sm:text-sm">
+                  <td className="text-xs sm:text-sm text-center">
                     {it.amount.toFixed(2)}
                   </td>
-                  <td className="text-center text-xs sm:text-sm">
+                  <td className="text-xs sm:text-sm text-center">
                     {it.total.toFixed(2)}
                   </td>
                 </tr>
               ))}
+
+              {/* Action Buttons Row Inside Table */}
+              <tr className="bg-white">
+                <td colSpan={6} className="text-left px-4 py-4">
+                  <div className="flex flex-row  gap-3 sm:gap-4">
+                    <button
+                      onClick={addItem}
+                      className="text-black text-xs sm:text-sm flex gap-2 items-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100"
+                    >
+                      <CiSquarePlus size={18} className="text-[#27247B]" />
+                      Add New Line
+                    </button>
+                    <button
+                      onClick={duplicateLastItem}
+                      className="text-black text-xs sm:text-sm flex gap-2 items-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100"
+                    >
+                      <CiSquarePlus size={18} className="text-[#27247B]" />
+                      Duplicate Previous Line
+                    </button>
+                  </div>
+                </td>
+              </tr>
             </tbody>
           </table>
-
-          {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 px-2 sm:px-6 py-4 w-full">
-            <button
-              onClick={addItem}
-              className="text-black w-full text-sm flex gap-2 justify-center items-center border border-gray-300 rounded-md py-2"
-            >
-              <CiSquarePlus size={18} className="text-[#27247B]" /> Add New
-              Field
-            </button>
-            <button
-              onClick={duplicateLastItem}
-              className="text-black w-full text-sm flex gap-2 justify-center items-center border border-gray-300 rounded-md py-2"
-            >
-              <CiSquarePlus size={24} className="text-[#27247B]" /> Duplicate
-              Previous Line
-            </button>
-          </div>
         </div>
 
-        {/* Terms, Info, Notes, Attachments */}
+        {/* Terms & Info Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Terms & Conditions */}
           <div>
-            <h3 className="font-semibold">Terms & Conditions</h3>
+            <span className="text-2xl text-black">Terms & Conditions</span>
             {terms.map((t, i) => (
-              <input
-                key={i}
-                value={t}
-                onChange={(e) =>
-                  handleListChange(terms, setTerms, i, e.target.value)
-                }
-                className="border border-gray-100 w-full px-2 py-1 my-1 outline-none"
-              />
+              <div key={i} className="relative my-1 flex items-center ">
+                {t && <BsDot className="text-black text-3xl mr-1" />}
+                <input
+                  value={t}
+                  onChange={(e) =>
+                    handleListChange(terms, setTerms, i, e.target.value)
+                  }
+                  className={`w-full pl-${
+                    t ? "6" : "2"
+                  } pr-2 py-1 outline-none transition-all ${
+                    t ? "border-none bg-transparent" : "border border-gray-200"
+                  }`}
+                />
+              </div>
             ))}
             <button
               onClick={() => handleAddListItem(terms, setTerms)}
-              className="text-black text-sm mt-2 flex gap-2 justify-center items-center"
+              className="text-black text-sm mt-2 flex gap-2 items-center"
             >
-              <CiSquarePlus size={24} className="text-[#27247B]" /> Add T&C
+              <CiSquarePlus size={20} className="text-[#27247B]" /> Add T&C
             </button>
           </div>
+
+          {/* Additional Info */}
           <div>
-            <h3 className="font-semibold">Additional Info</h3>
+            <span className="text-2xl text-black">Additional Info</span>
             {additionalInfo.map((a, i) => (
-              <input
-                key={i}
-                value={a}
-                onChange={(e) =>
-                  handleListChange(
-                    additionalInfo,
-                    setAdditionalInfo,
-                    i,
-                    e.target.value
-                  )
-                }
-                className="border border-gray-100 w-full px-2 py-1 my-1"
-              />
+              <div key={i} className="relative my-1 flex items-center ">
+                {a && <BsDot className="text-black text-3xl mr-1" />}
+                <input
+                  value={a}
+                  onChange={(e) =>
+                    handleListChange(
+                      additionalInfo,
+                      setAdditionalInfo,
+                      i,
+                      e.target.value
+                    )
+                  }
+                  className={`w-full pl-${
+                    a ? "6" : "2"
+                  } pr-2 py-1 outline-none transition-all ${
+                    a ? "border-none bg-transparent" : "border border-gray-200"
+                  }`}
+                />
+              </div>
             ))}
             <button
               onClick={() =>
                 handleAddListItem(additionalInfo, setAdditionalInfo)
               }
-              className="text-black text-sm mt-2 flex gap-2 justify-center items-center"
+              className="text-black text-sm mt-2 flex gap-2 items-center"
             >
-              <CiSquarePlus size={24} className="text-[#27247B]" />
-              Add Info
+              <CiSquarePlus size={20} className="text-[#27247B]" /> Add Info
             </button>
           </div>
         </div>
 
-        {/* Notes & Attachments */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Notes & Attachments Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          {/* Notes */}
           <div>
-            <h3 className="font-semibold">Notes</h3>
+            <span className="text-2xl text-black">Notes</span>
             {notes.map((n, i) => (
-              <input
-                key={i}
-                value={n}
-                onChange={(e) =>
-                  handleListChange(notes, setNotes, i, e.target.value)
-                }
-                className="border border-gray-100 w-full px-2 py-1 my-1 outline-none"
-              />
+              <div key={i} className="relative my-1 flex items-center ">
+                {n && <BsDot className="text-black text-3xl mr-1" />}
+                <input
+                  value={n}
+                  onChange={(e) =>
+                    handleListChange(notes, setNotes, i, e.target.value)
+                  }
+                  className={`w-full pl-${
+                    n ? "6" : "2"
+                  } pr-2 py-1 outline-none transition-all ${
+                    n ? "border-none bg-transparent" : "border border-gray-200"
+                  }`}
+                />
+              </div>
             ))}
             <button
               onClick={() => handleAddListItem(notes, setNotes)}
-              className="text-black text-sm mt-2 flex gap-2 justify-center items-center"
+              className="text-black text-sm mt-2 flex gap-2 items-center"
             >
-              <CiSquarePlus size={24} className="text-[#27247B]" />
-              Add Note
+              <CiSquarePlus size={20} className="text-[#27247B]" /> Add Note
             </button>
           </div>
+
+          {/* Attachments */}
           <div>
-            <h3 className="font-semibold">Attachments</h3>
+            <span className="text-2xl text-black">Attachments</span>
             {attachments.map((a, i) => (
-              <input
-                key={i}
-                value={a}
-                onChange={(e) =>
-                  handleListChange(
-                    attachments,
-                    setAttachments,
-                    i,
-                    e.target.value
-                  )
-                }
-                className="border border-gray-100 w-full px-2 py-1 my-1 outline-none"
-              />
+              <div key={i} className="relative my-1 flex items-center ">
+                {a && <BsDot className="text-black text-3xl mr-1" />}
+                <input
+                  value={a}
+                  onChange={(e) =>
+                    handleListChange(
+                      attachments,
+                      setAttachments,
+                      i,
+                      e.target.value
+                    )
+                  }
+                  className={`w-full pl-${
+                    a ? "6" : "2"
+                  } pr-2 py-1 outline-none transition-all ${
+                    a ? "border-none bg-transparent" : "border border-gray-200"
+                  }`}
+                />
+              </div>
             ))}
             <button
               onClick={() => handleAddListItem(attachments, setAttachments)}
-              className="text-black text-sm mt-2 flex gap-2 justify-center items-center"
+              className="text-black text-sm mt-2 flex gap-2 items-center"
             >
-              <CiSquarePlus size={24} className="text-[#27247B]" /> Add
+              <CiSquarePlus size={20} className="text-[#27247B]" /> Add
               Attachment
             </button>
           </div>
@@ -532,17 +649,19 @@ export default function Quotation() {
         {/* Stamp/Signature */}
         <div className="flex justify-end">
           <div
-            className="w-40 h-24 border border-dashed border-gray-400 flex items-center justify-center text-gray-400 cursor-pointer"
+            className="w-40 h-24 bg-gray-100 flex items-center justify-center rounded-xl text-gray-400 cursor-pointer"
             onClick={() => stampInputRef.current.click()}
           >
             {stampURL ? (
               <img
                 src={stampURL}
                 alt="Stamp"
-                className="h-full object-contain"
+                className="h-full object-contain bg-white"
               />
             ) : (
-              <span className="text-sm">Stamp/Signature</span>
+              <span className="text-sm text-black border border-dashed">
+                Stamp/Signature
+              </span>
             )}
             <input
               type="file"
