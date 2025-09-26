@@ -29,7 +29,7 @@ const SimpleSolution = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-[120px] py-12 lg:py-20 relative z-10">
         {/* Decorative Background Image */}
         <img
-          src="/images/quotationsimplesolution.png"
+          src="/images/quotationsolutions.png"
           alt="Decor Bottom Right"
           className="absolute bottom-0 right-0 w-[28rem] sm:w-[35rem] md:w-[40rem] lg:w-[45rem] object-contain pointer-events-none z-0 "
         />

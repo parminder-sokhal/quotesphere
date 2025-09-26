@@ -1,58 +1,59 @@
 // src/components/Quotation.jsx
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setQuotationData } from "../../store/quotationSlice";
 import { MdOutlineEdit } from "react-icons/md";
 import { GrGallery } from "react-icons/gr";
 import { CiSquarePlus } from "react-icons/ci";
 import { BsDot } from "react-icons/bs";
+import { useRef } from "react";
+import { PiNumberCircleOneFill, PiNumberCircleTwoFill,PiNumberCircleThreeFill } from "react-icons/pi";
 
-export default function Quotation() {
+export default function Quotation({ readOnly = false }) {
+  const [showHeading, setShowHeading] = useState(true);
+  const reduxData = useSelector((state) => state.quotation);
+  // States
+  const [heading, setHeading] = useState(reduxData.heading || "Quotation");
+  const [quotationNo, setQuotationNo] = useState(reduxData.quotationNo || "");
+  const [quotationDate, setQuotationDate] = useState(
+    reduxData.quotationDate || ""
+  );
+  const [extraFields, setExtraFields] = useState(reduxData.extraFields || []);
+  const [from, setFrom] = useState(reduxData.from || []);
+  const [to, setTo] = useState(reduxData.to || []);
+  const [items, setItems] = useState(reduxData.items || []);
+  const [terms, setTerms] = useState(reduxData.terms || []);
+  const [additionalInfo, setAdditionalInfo] = useState(
+    reduxData.additionalInfo || []
+  );
+  const [notes, setNotes] = useState(reduxData.notes || []);
+  const [attachments, setAttachments] = useState(reduxData.attachments || []);
+  const [discount, setDiscount] = useState(reduxData.discount || 0);
+  const [stamp, setStamp] = useState(reduxData.stamp || null);
+  const [logo, setLogo] = useState(reduxData.logo || null);
+
+  const [logoURL, setLogoURL] = useState(
+    logo instanceof File ? URL.createObjectURL(logo) : logo || null
+  );
+
+  const [stampURL, setStampURL] = useState(
+    stamp instanceof File ? URL.createObjectURL(stamp) : stamp || null
+  );
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  // States
-  const [heading, setHeading] = useState("Quotation");
-  const [showHeading, setShowHeading] = useState(true);
-  const [quotationNo, setQuotationNo] = useState("");
-  const [quotationDate, setQuotationDate] = useState("");
-  const [extraFields, setExtraFields] = useState([]);
-
-  const [from, setFrom] = useState([
-    { label: "Name", value: "", isDefault: true },
-    { label: "Phone", value: "", isDefault: true },
-    { label: "Email", value: "", isDefault: true },
-    { label: "Address", value: "", isDefault: true },
-    { label: "PAN", value: "", isDefault: true },
-  ]);
-
-  const [to, setTo] = useState([
-    { label: "Name", value: "", isDefault: true },
-    { label: "Phone", value: "", isDefault: true },
-    { label: "Email", value: "", isDefault: true },
-    { label: "Address", value: "", isDefault: true },
-    { label: "PAN", value: "", isDefault: true },
-  ]);
-
-  const [items, setItems] = useState([
-    { description: "", qty: 1, rate: 0, gst: 0, amount: 0, total: 0 },
-  ]);
-
-  const [terms, setTerms] = useState([]);
-  const [additionalInfo, setAdditionalInfo] = useState([]);
-  const [notes, setNotes] = useState([]);
-  const [attachments, setAttachments] = useState([]);
-  const [discount, setDiscount] = useState(0);
-  const [stamp, setStamp] = useState(null);
+  const logoInputRef = useRef(null);
+  const stampInputRef = useRef(null);
 
   const addExtraField = () => {
     setExtraFields([...extraFields, { label: "", value: "" }]);
   };
 
   const handlePartyChange = (party, setParty, index, field, value) => {
-    const updated = [...party];
-    updated[index][field] = value;
+    const updated = party.map((p, i) =>
+      i === index ? { ...p, [field]: value } : p
+    );
     setParty(updated);
   };
 
@@ -61,12 +62,24 @@ export default function Quotation() {
   };
 
   const handleItemChange = (index, field, value) => {
-    const updated = [...items];
-    updated[index][field] = value;
-    updated[index].amount = updated[index].qty * updated[index].rate;
-    updated[index].total =
-      updated[index].amount +
-      (updated[index].amount * updated[index].gst) / 100;
+    const updated = items.map((item, i) =>
+      i === index
+        ? {
+            ...item,
+            [field]: value,
+            amount:
+              field === "qty" || field === "rate"
+                ? (field === "qty" ? value : item.qty) *
+                  (field === "rate" ? value : item.rate)
+                : item.qty * item.rate,
+            total:
+              (field === "qty" ? value : item.qty) *
+                (field === "rate" ? value : item.rate) *
+                (1 + (field === "gst" ? value : item.gst) / 100) || 0,
+          }
+        : item
+    );
+
     setItems(updated);
   };
 
@@ -108,24 +121,20 @@ export default function Quotation() {
         notes,
         attachments,
         discount,
-        stamp,
+        stamp: stampURL,
+        logo: logoURL,
       })
     );
-    navigate("");
+    navigate("/quotation-customization");
   };
 
   const subtotal = items.reduce((sum, i) => sum + i.total, 0);
   const total = subtotal - discount;
-  const [logo, setLogo] = useState(null);
-  const logoInputRef = React.useRef(null);
-  const stampInputRef = React.useRef(null);
-  const [logoURL, setLogoURL] = useState(null);
-  const [stampURL, setStampURL] = useState(null);
-
+ 
   React.useEffect(() => {
     return () => {
-      if (logoURL) URL.revokeObjectURL(logoURL);
-      if (stampURL) URL.revokeObjectURL(stampURL);
+      if (logo instanceof File && logoURL) URL.revokeObjectURL(logoURL);
+      if (stamp instanceof File && stampURL) URL.revokeObjectURL(stampURL);
     };
   }, [logoURL, stampURL]);
 
@@ -139,14 +148,25 @@ export default function Quotation() {
         <h1 className="text-4xl sm:text-6xl font-bold">
           Create <span className="text-[#27247B]">Quotations</span> in a Moment
         </h1>
-        <p className="text-gray-600 mt-2">
-          Fill in the details below to generate a professional quotation.
-        </p>
+        <div className="mt-4 flex flex-wrap justify-center gap-10  sm:text-base font-medium text-black">
+          <button className="flex gap-2 items-center">
+            <PiNumberCircleOneFill size={22} />
+            <span className="text-2xl">Add your details</span>
+          </button>
+          <button className="flex gap-2 items-center">
+            <PiNumberCircleTwoFill size={22} />
+            <span className="text-2xl">Customize</span>
+          </button>
+          <button className="flex gap-2 items-center">
+            <PiNumberCircleThreeFill size={22} />
+            <span className="text-2xl">Share</span>
+          </button>
+        </div>
       </div>
 
       {/* Form Container */}
       <div className="bg-white shadow-2xl rounded-xl lg:px-20 px-5 py-15  border border-gray-200 space-y-6">
-        {/* Heading + Logo */}
+       
         {/* Quotation Header + Logo */}
         <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
           {/* Heading & Details */}
@@ -171,16 +191,14 @@ export default function Quotation() {
                 <input
                   type="text"
                   value={heading}
+                  disabled={readOnly}
                   onChange={(e) => setHeading(e.target.value)}
                   onBlur={() => setShowHeading(true)}
                   autoFocus
                   className="text-3xl w-full font-bold focus:outline-none text-[#27247B]"
                 />
               )}
-              {/* <MdOutlineEdit
-                onClick={() => setShowHeading(false)}
-                className="text-2xl text-blue-800 cursor-pointer ml-2"
-              /> */}
+              
             </div>
 
             {/* Quotation No + Date */}
@@ -190,6 +208,7 @@ export default function Quotation() {
                 <input
                   type="text"
                   value={quotationNo}
+                  disabled={readOnly}
                   onChange={(e) => setQuotationNo(e.target.value)}
                   className={`border ${
                     quotationNo ? "border-transparent" : "border-gray-200"
@@ -202,6 +221,7 @@ export default function Quotation() {
                 <input
                   type="date"
                   value={quotationDate}
+                  disabled={readOnly}
                   onChange={(e) => setQuotationDate(e.target.value)}
                   className={`border ${
                     quotationDate ? "border-transparent" : "border-gray-200"
@@ -218,6 +238,7 @@ export default function Quotation() {
                   <input
                     placeholder="Field"
                     value={f.label}
+                    disabled={readOnly}
                     onChange={(e) => {
                       const updated = [...extraFields];
                       updated[i].label = e.target.value;
@@ -232,6 +253,7 @@ export default function Quotation() {
                   <div className="flex flex-row  items-center w-full sm:w-2/3 gap-2">
                     <input
                       placeholder="Value"
+                      disabled={readOnly}
                       value={f.value}
                       onChange={(e) => {
                         const updated = [...extraFields];
@@ -244,28 +266,32 @@ export default function Quotation() {
                           : "border border-gray-200"
                       }`}
                     />
-                    <button
-                      onClick={() => {
-                        const updated = [...extraFields];
-                        updated.splice(i, 1);
-                        setExtraFields(updated);
-                      }}
-                      className="flex texts-center text-red-500 text-sm font-semibold"
-                    >
-                      Remove
-                    </button>
+                    {!readOnly && (
+                      <button
+                        onClick={() => {
+                          const updated = [...extraFields];
+                          updated.splice(i, 1);
+                          setExtraFields(updated);
+                        }}
+                        className="flex texts-center text-red-500 text-sm font-semibold"
+                      >
+                        Remove
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
 
               {/* Add Field Button */}
-              <button
-                onClick={addExtraField}
-                className="text-black text-sm mt-2 flex gap-2 items-center"
-              >
-                <CiSquarePlus size={24} className="text-[#27247B]" /> Add/Remove
-                New Field
-              </button>
+              {!readOnly && (
+                <button
+                  onClick={addExtraField}
+                  className="text-black text-sm mt-2 flex gap-2 items-center"
+                >
+                  <CiSquarePlus size={24} className="text-[#27247B]" />{" "}
+                  Add/Remove New Field
+                </button>
+              )}
             </div>
           </div>
 
@@ -292,6 +318,7 @@ export default function Quotation() {
               type="file"
               accept="image/png, image/jpeg, image/jpg"
               ref={logoInputRef}
+              disabled={readOnly}
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files[0];
@@ -325,6 +352,7 @@ export default function Quotation() {
                   <input
                     placeholder="Field"
                     value={field.label}
+                    disabled={readOnly}
                     onChange={(e) =>
                       handlePartyChange(
                         party.state,
@@ -343,6 +371,7 @@ export default function Quotation() {
                   <input
                     placeholder="Value"
                     value={field.value}
+                    disabled={readOnly}
                     onChange={(e) =>
                       handlePartyChange(
                         party.state,
@@ -374,14 +403,15 @@ export default function Quotation() {
                   )}
                 </div>
               ))}
-
-              <button
-                onClick={() => handleAddPartyField(party.state, party.set)}
-                className="text-black text-sm mt-2 flex gap-2 items-center"
-              >
-                <CiSquarePlus size={24} className="text-[#27247B]" /> Add/Remove
-                New Field
-              </button>
+              {!readOnly && (
+                <button
+                  onClick={() => handleAddPartyField(party.state, party.set)}
+                  className="text-black text-sm mt-2 flex gap-2 items-center"
+                >
+                  <CiSquarePlus size={24} className="text-[#27247B]" />{" "}
+                  Add/Remove New Field
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -423,6 +453,7 @@ export default function Quotation() {
                     <input
                       className="w-full px-2 py-1 text-xs sm:text-sm text-center outline-none bg-transparent"
                       value={it.description}
+                      disabled={readOnly}
                       placeholder="Item description"
                       onChange={(e) =>
                         handleItemChange(i, "description", e.target.value)
@@ -432,6 +463,7 @@ export default function Quotation() {
                   <td>
                     <input
                       type="number"
+                      disabled={readOnly}
                       className="w-full px-2 py-1 text-xs sm:text-sm text-center outline-none bg-transparent"
                       value={it.qty}
                       onChange={(e) =>
@@ -444,6 +476,7 @@ export default function Quotation() {
                       type="number"
                       className="w-full px-2 py-1 text-xs sm:text-sm text-center outline-none bg-transparent"
                       value={it.rate}
+                      disabled={readOnly}
                       onChange={(e) =>
                         handleItemChange(i, "rate", Number(e.target.value))
                       }
@@ -452,6 +485,7 @@ export default function Quotation() {
                   <td>
                     <input
                       type="number"
+                      disabled={readOnly}
                       className="w-full px-2 py-1 text-xs sm:text-sm text-center outline-none bg-transparent"
                       value={it.gst}
                       onChange={(e) =>
@@ -472,20 +506,24 @@ export default function Quotation() {
               <tr className="bg-white">
                 <td colSpan={6} className="text-left px-4 py-4">
                   <div className="flex flex-row  gap-3 sm:gap-4">
-                    <button
-                      onClick={addItem}
-                      className="text-black text-xs sm:text-sm flex gap-2 items-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100"
-                    >
-                      <CiSquarePlus size={18} className="text-[#27247B]" />
-                      Add New Line
-                    </button>
-                    <button
-                      onClick={duplicateLastItem}
-                      className="text-black text-xs sm:text-sm flex gap-2 items-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100"
-                    >
-                      <CiSquarePlus size={18} className="text-[#27247B]" />
-                      Duplicate Previous Line
-                    </button>
+                    {!readOnly && (
+                      <button
+                        onClick={addItem}
+                        className="text-black text-xs sm:text-sm flex gap-2 items-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100"
+                      >
+                        <CiSquarePlus size={18} className="text-[#27247B]" />
+                        Add New Line
+                      </button>
+                    )}
+                    {!readOnly && (
+                      <button
+                        onClick={duplicateLastItem}
+                        className="text-black text-xs sm:text-sm flex gap-2 items-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100"
+                      >
+                        <CiSquarePlus size={18} className="text-[#27247B]" />
+                        Duplicate Previous Line
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -502,6 +540,7 @@ export default function Quotation() {
               <div key={i} className="relative my-1 flex items-center ">
                 {t && <BsDot className="text-black text-3xl mr-1" />}
                 <input
+                  disabled={readOnly}
                   value={t}
                   onChange={(e) =>
                     handleListChange(terms, setTerms, i, e.target.value)
@@ -514,12 +553,14 @@ export default function Quotation() {
                 />
               </div>
             ))}
-            <button
-              onClick={() => handleAddListItem(terms, setTerms)}
-              className="text-black text-sm mt-2 flex gap-2 items-center"
-            >
-              <CiSquarePlus size={20} className="text-[#27247B]" /> Add T&C
-            </button>
+            {!readOnly && (
+              <button
+                onClick={() => handleAddListItem(terms, setTerms)}
+                className="text-black text-sm mt-2 flex gap-2 items-center"
+              >
+                <CiSquarePlus size={20} className="text-[#27247B]" /> Add T&C
+              </button>
+            )}
           </div>
 
           {/* Additional Info */}
@@ -530,6 +571,7 @@ export default function Quotation() {
                 {a && <BsDot className="text-black text-3xl mr-1" />}
                 <input
                   value={a}
+                  disabled={readOnly}
                   onChange={(e) =>
                     handleListChange(
                       additionalInfo,
@@ -546,14 +588,16 @@ export default function Quotation() {
                 />
               </div>
             ))}
-            <button
-              onClick={() =>
-                handleAddListItem(additionalInfo, setAdditionalInfo)
-              }
-              className="text-black text-sm mt-2 flex gap-2 items-center"
-            >
-              <CiSquarePlus size={20} className="text-[#27247B]" /> Add Info
-            </button>
+            {!readOnly && (
+              <button
+                onClick={() =>
+                  handleAddListItem(additionalInfo, setAdditionalInfo)
+                }
+                className="text-black text-sm mt-2 flex gap-2 items-center"
+              >
+                <CiSquarePlus size={20} className="text-[#27247B]" /> Add Info
+              </button>
+            )}
           </div>
         </div>
 
@@ -567,6 +611,7 @@ export default function Quotation() {
                 {n && <BsDot className="text-black text-3xl mr-1" />}
                 <input
                   value={n}
+                  disabled={readOnly}
                   onChange={(e) =>
                     handleListChange(notes, setNotes, i, e.target.value)
                   }
@@ -578,12 +623,14 @@ export default function Quotation() {
                 />
               </div>
             ))}
-            <button
-              onClick={() => handleAddListItem(notes, setNotes)}
-              className="text-black text-sm mt-2 flex gap-2 items-center"
-            >
-              <CiSquarePlus size={20} className="text-[#27247B]" /> Add Note
-            </button>
+            {!readOnly && (
+              <button
+                onClick={() => handleAddListItem(notes, setNotes)}
+                className="text-black text-sm mt-2 flex gap-2 items-center"
+              >
+                <CiSquarePlus size={20} className="text-[#27247B]" /> Add Note
+              </button>
+            )}
           </div>
 
           {/* Attachments */}
@@ -594,6 +641,7 @@ export default function Quotation() {
                 {a && <BsDot className="text-black text-3xl mr-1" />}
                 <input
                   value={a}
+                  disabled={readOnly}
                   onChange={(e) =>
                     handleListChange(
                       attachments,
@@ -610,13 +658,15 @@ export default function Quotation() {
                 />
               </div>
             ))}
-            <button
-              onClick={() => handleAddListItem(attachments, setAttachments)}
-              className="text-black text-sm mt-2 flex gap-2 items-center"
-            >
-              <CiSquarePlus size={20} className="text-[#27247B]" /> Add
-              Attachment
-            </button>
+            {!readOnly && (
+              <button
+                onClick={() => handleAddListItem(attachments, setAttachments)}
+                className="text-black text-sm mt-2 flex gap-2 items-center"
+              >
+                <CiSquarePlus size={20} className="text-[#27247B]" /> Add
+                Attachment
+              </button>
+            )}
           </div>
         </div>
 
@@ -633,6 +683,7 @@ export default function Quotation() {
             <span>Discount (%):</span>
             <input
               type="number"
+              disabled={readOnly}
               value={discount}
               onChange={(e) => setDiscount(Number(e.target.value))}
               className="text-right"
@@ -665,6 +716,7 @@ export default function Quotation() {
             )}
             <input
               type="file"
+              disabled={readOnly}
               accept="image/png, image/jpeg, image/jpg"
               ref={stampInputRef}
               className="hidden"
@@ -682,12 +734,14 @@ export default function Quotation() {
 
         {/* Customize Button */}
         <div className="text-center">
-          <button
-            onClick={handleGenerate}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg shadow"
-          >
-            Customize
-          </button>
+          {!readOnly && (
+            <button
+              onClick={handleGenerate}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg shadow"
+            >
+              Customize
+            </button>
+          )}
         </div>
       </div>
     </main>
